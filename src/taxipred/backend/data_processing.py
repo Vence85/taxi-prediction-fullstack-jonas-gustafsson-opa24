@@ -36,5 +36,14 @@ def clean_taxi_data(df: pd.DataFrame) -> pd.DataFrame:
 
     # Completely cleaned dataframe with no nans
     train_df = cleaned_df.dropna(subset=["Trip_Price"])
+
+    Q1 = train_df["Trip_Price"].quantile(0.25)
+    Q3 = train_df["Trip_Price"].quantile(0.75)
+    IQR = Q3 - Q1
+
+    lower_bound = Q1 - 1.5 * IQR
+    upper_bound = Q3 + 1.5 * IQR
+
+    train_df = train_df[(train_df["Trip_Price"] >= lower_bound) & (train_df["Trip_Price"] <= upper_bound)]
     
     return cleaned_df, train_df, predict_df
