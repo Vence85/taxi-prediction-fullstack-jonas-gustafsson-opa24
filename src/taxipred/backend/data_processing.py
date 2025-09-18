@@ -12,7 +12,7 @@ class TaxiData:
 
 #Cleaning the data. Dropping columns with important data and filling not so important columns with 'unknown'. 
 def clean_taxi_data(df: pd.DataFrame) -> pd.DataFrame:
-    df_cleaned = df.dropna(
+    cleaned_df = df.dropna(
         subset =[
         "Trip_Distance_km",
         "Base_Fare",
@@ -23,11 +23,18 @@ def clean_taxi_data(df: pd.DataFrame) -> pd.DataFrame:
     ).copy()
 
     for col in ["Time_of_Day", "Day_of_Week", "Traffic_Conditions", "Weather"]:
-        df_cleaned[col] = df_cleaned[col].fillna("Unknown")
+        cleaned_df[col] = cleaned_df[col].fillna("Unknown")
 
     #Swappping nan values in 'passenger_count' with the median value 
-    if "Passenger_Count" in df_cleaned.columns:
-        median_pass = df_cleaned["Passenger_Count"].median()
-        df_cleaned["Passenger_Count"] = df_cleaned["Passenger_Count"].fillna(median_pass)
+    if "Passenger_Count" in cleaned_df.columns:
+        median_pass = cleaned_df["Passenger_Count"].median()
+        cleaned_df["Passenger_Count"] = cleaned_df["Passenger_Count"].fillna(median_pass)
 
-    return df_cleaned
+    #cleaned_df is now a dataframe where all nan, except in the target column, are dropped or unknow. Passanger_count nans is set to median
+    #Creates a dataframe with the rows where target is nan. 
+    predict_df = cleaned_df[cleaned_df["Trip_Price"].isna()]
+
+    # Completely cleaned dataframe with no nans
+    train_df = cleaned_df.dropna(subset=["Trip_Price"])
+    
+    return cleaned_df, train_df, predict_df
