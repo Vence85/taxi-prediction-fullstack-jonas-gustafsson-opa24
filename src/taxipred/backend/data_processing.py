@@ -37,6 +37,7 @@ def clean_taxi_data(df: pd.DataFrame) -> pd.DataFrame:
     # Completely cleaned dataframe with no nans
     train_df = cleaned_df.dropna(subset=["Trip_Price"])
 
+    #remove potential outliers
     Q1 = train_df["Trip_Price"].quantile(0.25)
     Q3 = train_df["Trip_Price"].quantile(0.75)
     IQR = Q3 - Q1
