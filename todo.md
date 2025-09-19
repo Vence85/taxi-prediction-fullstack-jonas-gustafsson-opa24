@@ -8,9 +8,9 @@
 - [x] Spara städade dataset (clean, train, predict)
 
 ## Modellering
-- [ ] Dela upp data i features (X) och target (y)
-- [ ] Train/test split
-- [ ] Träna Linear Regression-modell
+- [x] Dela upp data i features (X) och target (y)
+- [x] Train/test split
+- [x] Träna Linear Regression-modell
 - [ ] Utvärdera modellen (RMSE, R², plots)
 - [ ] Träna slutmodell på all data
 - [ ] Exportera modellen med joblib
