@@ -11,9 +11,9 @@
 - [x] Dela upp data i features (X) och target (y)
 - [x] Train/test split
 - [x] Träna Linear Regression-modell
-- [ ] Utvärdera modellen (RMSE, R², plots)
-- [ ] Träna slutmodell på all data
-- [ ] Exportera modellen med joblib
+- [x] Utvärdera modellen (RMSE, R², plots)
+- [x] Träna slutmodell på all data
+- [x] Exportera modellen med joblib
 
 ## Backend (FastAPI)
 - [ ] Skapa endpoint för att läsa data
