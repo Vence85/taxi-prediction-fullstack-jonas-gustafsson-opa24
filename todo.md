@@ -16,12 +16,12 @@
 - [x] Exportera modellen med joblib
 
 ## Backend (FastAPI)
-- [ ] Skapa endpoint för att läsa data
-- [ ] Skapa endpoint för prediction med ML-modellen
-- [ ] Testa API:et lokalt
+- [x] Skapa endpoint för att läsa data
+- [x] Skapa endpoint för prediction med ML-modellen
+- [x] Testa API:et lokalt
 
 ## Frontend (Streamlit)
-- [ ] Bygga enkel UI för att visa data
+- [x] Bygga enkel UI för att visa data
 - [ ] Input-formulär för att skicka prediction-request
 - [ ] Visualisera modellens resultat
 
