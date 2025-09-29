@@ -32,6 +32,6 @@ def predict_price(payload: TaxiInput):
     data_to_predict = data_to_predict.reindex(columns=model.feature_names_in_, fill_value=0)
     prediciton = model.predict(data_to_predict)[0]
 
-    return {"Predicted trip price": round(prediciton, 0)}                                         
+    return {"price": prediciton}                                         
     
     
