@@ -1,4 +1,4 @@
-from taxipred.utils.constants import TAXI_CSV_PATH, CLEANED_TAXI_DATA
+from taxipred.utils.constants import CLEANED_TAXI_DATA
 import pandas as pd
 import json
 

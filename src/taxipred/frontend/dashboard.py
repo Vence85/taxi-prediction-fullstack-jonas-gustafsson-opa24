@@ -1,8 +1,11 @@
 import streamlit as st
 import datetime
 import requests
-from geopy.geocoders import Nominatim
 import base64, pathlib
+from dotenv import load_dotenv
+import os
+load_dotenv()
+GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
 
 # ---------------- Bakgrundsbild ----------------
 def set_bg(image_path: str):
@@ -31,19 +34,28 @@ set_bg("src/taxipred/frontend/assets/map_background.png")
 
 # ---------------- Funktioner ----------------
 def geocode_address(address: str):
-    geolocator = Nominatim(user_agent="taxi_app")
-    location = geolocator.geocode(address)
-    if location:
-        return location.latitude, location.longitude
+    url = "https://maps.googleapis.com/maps/api/geocode/json"
+    params = {"address": address, "key": GOOGLE_API_KEY}
+    resp = requests.get(url, params=params).json()
+    if resp.get("results"):
+        loc = resp["results"][0]["geometry"]["location"]
+        return loc["lat"], loc["lng"]
     return None, None
 
+# Routing
 def get_route_info(start_lat, start_lon, end_lat, end_lon):
-    url = f"http://router.project-osrm.org/route/v1/driving/{start_lon},{start_lat};{end_lon},{end_lat}?overview=false"
-    resp = requests.get(url).json()
-    if resp["code"] == "Ok":
+    url = "https://maps.googleapis.com/maps/api/directions/json"
+    params = {
+        "origin": f"{start_lat},{start_lon}",
+        "destination": f"{end_lat},{end_lon}",
+        "mode": "driving",
+        "key": GOOGLE_API_KEY
+    }
+    resp = requests.get(url, params=params).json()
+    if resp.get("routes"):
         leg = resp["routes"][0]["legs"][0]
-        distance_km = leg["distance"] / 1000
-        duration_min = leg["duration"] / 60
+        distance_km = leg["distance"]["value"] / 1000
+        duration_min = leg["duration"]["value"] / 60
         return distance_km, duration_min
     return None, None
 
@@ -59,19 +71,20 @@ def get_time_of_day(time: datetime.time) -> str:
         return "Night"
 
 # ---------------- Layout ----------------
-st.title("🚖 Taxi Prediction")
+st.title("Taxi price app")
 
 col1, col2 = st.columns([1, 1])
 
 with col1:
-    start = st.text_input("Varifrån (adress)", "Drottninggatan 1, Stockholm")
-    destination = st.text_input("Vart vill du åka?", "Centralstationen, Göteborg")
+    start = st.text_input("Varifrån (adress)")
+    destination = st.text_input("Vart vill du åka?")
     date = st.date_input("Datum", datetime.date.today())
     time = st.time_input("Tid", value=datetime.time(8, 0))
     passengers = st.slider("Antal passagerare", 1, 4, 1)
 
     if st.button("Beräkna pris"):
-        st.session_state["predict_request"] = {
+        # Spara inputs temporärt till session_state så col2 kan läsa dem
+        st.session_state["inputs"] = {
             "start": start,
             "destination": destination,
             "date": date,
@@ -79,9 +92,10 @@ with col1:
             "passengers": passengers,
         }
 
+
 with col2:
-    if "predict_request" in st.session_state:
-        req = st.session_state["predict_request"]
+    if "inputs" in st.session_state:
+        req = st.session_state["inputs"]
 
         # Geokoda adresser
         start_lat, start_lon = geocode_address(req["start"])
@@ -93,7 +107,7 @@ with col2:
             dist_km, dur_min = get_route_info(start_lat, start_lon, end_lat, end_lon)
             hours = int(dur_min // 60)
             minutes = int(dur_min % 60)
-            total_duration = f"{hours} h  {minutes} min" if hours > 0 else f"{minutes} min"
+            total_duration = f"{hours} h {minutes} min" if hours > 0 else f"{minutes} min"
 
             if dist_km and dur_min:
                 time_of_day = get_time_of_day(req["time"])
@@ -107,14 +121,13 @@ with col2:
                     "Passenger_Count": req["passengers"],
                 }
 
-                st.subheader(" Prediktion")
-                
+                st.subheader("Prediction")
                 response = requests.post("http://127.0.0.1:8000/taxi/predict", json=payload)
 
                 if response.ok:
                     price = response.json().get("price", "okänt") * 10
-                    st.success(f" Pris: {price:.2f} kr")
-                    st.info(f" Avstånd: {dist_km:.1f} km") 
+                    st.success(f"Pris: {price:.2f} sek")
+                    st.info(f"Avstånd: {dist_km:.1f} km")
                     st.info(f"Tid: {total_duration}")
                 else:
                     st.error("Något gick fel med prediktions-API:t.")
