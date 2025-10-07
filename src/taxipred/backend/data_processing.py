@@ -31,7 +31,6 @@ def clean_taxi_data(df: pd.DataFrame) -> pd.DataFrame:
         cleaned_df["Passenger_Count"] = cleaned_df["Passenger_Count"].fillna(median_pass)
 
     #cleaned_df is now a dataframe where all nan, except in the target column, are dropped or unknow. Passanger_count nans is set to median
-    #Creates a dataframe with the rows where target is nan. 
     predict_df = cleaned_df[cleaned_df["Trip_Price"].isna()]
 
     # Completely cleaned dataframe with no nans
